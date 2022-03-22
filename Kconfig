@@ -6,3 +6,19 @@
 
 config ZCBOR
 	bool "Include zcbor"
+
+config ZCBOR_MGMT
+	bool "Include decoders for MCUMGR Management"
+
+if ZCBOR_MGMT
+
+module=ZCBOR_MGMT
+module-dep=LOG
+module-str=ZCBOR_MGMT
+source "${ZEPHYR_BASE}/subsys/logging/Kconfig.template.log_config"
+
+config ZCBOR_MGMT_VERBOSE_DECODE
+	bool "Hex dump received CBOR data"
+	depends on ZCBOR_MGMT_LOG_LEVEL_DBG
+
+endif

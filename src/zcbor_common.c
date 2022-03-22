@@ -221,3 +221,26 @@ bool zcbor_splice_string_fragments(struct zcbor_string_fragment *fragments,
 	*result_len = total_len;
 	return true;
 }
+
+const char *zcbor_get_error_string(int error)
+{
+	switch (error) {
+	case ZCBOR_SUCCESS:                  return "Success";
+	case ZCBOR_ERR_NO_BACKUP_MEM:        return "No Backup Mem";
+	case ZCBOR_ERR_NO_BACKUP_ACTIVE:     return "No Backup Active";
+	case ZCBOR_ERR_LOW_ELEM_COUNT:       return "Low Element Count";
+	case ZCBOR_ERR_HIGH_ELEM_COUNT:      return "High Element Count";
+	case ZCBOR_ERR_INT_SIZE:             return "Int Size";
+	case ZCBOR_ERR_FLOAT_SIZE:           return "Float Size";
+	case ZCBOR_ERR_ADDITIONAL_INVAL:     return "Additional Invalid > 27";
+	case ZCBOR_ERR_NO_PAYLOAD:           return "No Payload/Buffer Too Small";
+	case ZCBOR_ERR_PAYLOAD_NOT_CONSUMED: return "Payload Not Consumed";
+	case ZCBOR_ERR_WRONG_TYPE:           return "Wrong Type";
+	case ZCBOR_ERR_WRONG_VALUE:          return "Wrong Value";
+	case ZCBOR_ERR_WRONG_RANGE:          return "Wrong Range";
+	case ZCBOR_ERR_ITERATIONS:           return "Iterations";
+	case ZCBOR_ERR_ASSERTION:            return "Assertion";
+	case ZCBOR_ERR_UNKNOWN:              return "Unknown";
+	default:                             return "?";
+	}
+}

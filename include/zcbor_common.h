@@ -368,4 +368,12 @@ bool zcbor_validate_string_fragments(struct zcbor_string_fragment *fragments,
 bool zcbor_splice_string_fragments(struct zcbor_string_fragment *fragments,
 		uint_fast32_t num_fragments, uint8_t *result, size_t *result_len);
 
+/**
+ * @brief Get error representation as a string
+ *
+ * @param[in]	error 	code
+ * @return 	const char*
+ */
+const char *zcbor_get_error_string(int error);
+
 #endif /* ZCBOR_COMMON_H__ */

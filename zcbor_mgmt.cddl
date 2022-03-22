@@ -1,0 +1,9 @@
+
+result_code = int
+
+; It is easiest to treat error as its own message type
+; (vs making all elements optional)
+; Currently this is only used on client side.
+error_rsp = {
+    "rc" : (result_code),
+}
