@@ -12,15 +12,16 @@ LOG_MODULE_REGISTER(mgmt_zcbor, CONFIG_ZCBOR_MGMT_LOG_LEVEL);
 #include <tinycbor/cbor_buf_writer.h>
 #include <zephyr.h>
 
+#include <mgmt/mgmt.h>
 #include <mgmt/mcumgr/buf.h>
 #include <mgmt/mcumgr/smp.h>
-#include <mgmt/mgmt.h>
 
+#include "zcbor_common.h"
 #include "zcbor_decode.h"
 #include "zcbor_encode.h"
 #include "zcbor_mgmt.h"
 
-int zcbor_mgmt_decode(struct mgmt_ctxt *ctxt, zcbor_mgmt_decoder_func decoder, void *result,
+int zcbor_mgmt_decode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func decoder, void *result,
 		      bool client)
 {
 	struct cbor_nb_reader *cnr = (struct cbor_nb_reader *)ctxt->parser.d;
@@ -33,7 +34,8 @@ int zcbor_mgmt_decode(struct mgmt_ctxt *ctxt, zcbor_mgmt_decoder_func decoder, v
 	if (decoder) {
 		decode_err = decoder(cbor_data, cbor_size, result, &decode_len);
 	}
-	LOG_DBG("decode err: %u len: %u size: %u", decode_err, decode_len, cbor_size);
+	LOG_DBG("decode err: %s len: %u size: %u", zcbor_get_error_string(decode_err), decode_len,
+		cbor_size);
 
 #ifdef CONFIG_MGMT_ZCBOR_VERBOSE
 	LOG_HEXDUMP_DBG(cbor_data, cbor_size, __func__);
@@ -48,4 +50,33 @@ int zcbor_mgmt_decode(struct mgmt_ctxt *ctxt, zcbor_mgmt_decoder_func decoder, v
 		}
 		return 0;
 	}
+}
+
+
+int zcbor_mgmt_encode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func encoder, void *input)
+{
+	uint8_t buf[CONFIG_MCUMGR_BUF_SIZE];
+	size_t encode_len = 0;
+	uint_fast8_t encode_err;
+	struct cbor_encoder_writer *w = ctxt->encoder.writer;
+	int write_status;
+
+	encode_err = encoder(buf, sizeof(buf), input, &encode_len);
+
+	if (encode_err) {
+		LOG_ERR("Unable to encode response %s", zcbor_get_error_string(encode_err));
+		return MGMT_ERR_ENCODE;
+	} else {
+		LOG_DBG("Encode length %u", encode_len);
+		LOG_HEXDUMP_DBG(buf, encode_len, "cbor out");
+	}
+
+	write_status = w->write(w, buf, encode_len);
+	if (write_status != 0) {
+		LOG_ERR("Unable to write response %d", write_status);
+		return MGMT_ERR_WRITE;
+	}
+
+	return MGMT_ERR_EOK;
+
 }
