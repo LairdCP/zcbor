@@ -21,8 +21,7 @@ LOG_MODULE_REGISTER(mgmt_zcbor, CONFIG_ZCBOR_MGMT_LOG_LEVEL);
 #include "zcbor_encode.h"
 #include "zcbor_mgmt.h"
 
-int zcbor_mgmt_decode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func decoder, void *result,
-		      bool client)
+int zcbor_mgmt_decode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func decoder, void *result, bool client)
 {
 	struct cbor_nb_reader *cnr = (struct cbor_nb_reader *)ctxt->parser.d;
 	uint8_t *cbor_data = cnr->nb->data;
@@ -52,7 +51,6 @@ int zcbor_mgmt_decode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func decoder, void *res
 	}
 }
 
-
 int zcbor_mgmt_encode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func encoder, void *input)
 {
 	uint8_t buf[CONFIG_MCUMGR_BUF_SIZE];
@@ -78,5 +76,15 @@ int zcbor_mgmt_encode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func encoder, void *inp
 	}
 
 	return MGMT_ERR_EOK;
+}
 
+int zcbor_mgmt_decode_err(struct mgmt_ctxt *ctxt)
+{
+	struct error_rsp rsp;
+
+	if (zcbor_mgmt_decode(ctxt, (zcbor_mgmt_func)cbor_decode_error_rsp, &rsp, false) != 0) {
+		return MGMT_ERR_DECODE;
+	} else {
+		return rsp.rc;
+	}
 }

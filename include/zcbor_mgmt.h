@@ -32,6 +32,35 @@ typedef uint_fast8_t (*zcbor_mgmt_func)(const uint8_t *payload, size_t payload_l
 int zcbor_mgmt_decode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func decoder, void *result,
 		      bool client);
 
+/**
+ * @brief Decode response from server by client (generate client notification)
+ */
+#define zcbor_mgmt_decode_client(_c, _d, _r)                                                       \
+	zcbor_mgmt_decode((_c), (zcbor_mgmt_func)(_d), (_r), true)
+
+/**
+ * @brief Decode command from client by server
+ */
+#define zcbor_mgmt_decode_server(_c, _d, _r)                                                       \
+	zcbor_mgmt_decode((_c), (zcbor_mgmt_func)(_d), (_r), false)
+
+/**
+ * @brief Encode message using ZCBOR
+ *
+ * @param ctxt management context
+ * @param encoder zcbor encoder function (cast)
+ * @param input encoder input
+ * @return int 0 on success, MGMT_ERR_[...] code on failure.
+ */
 int zcbor_mgmt_encode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func encoder, void *input);
+
+/**
+ * @brief Decode error response
+ *
+ * @param ctxt management context
+ * @return int MGMT_ERR_DECODE if error response not found, otherwise error
+ * code from message
+ */
+int zcbor_mgmt_decode_err(struct mgmt_ctxt *ctxt);
 
 #endif /* ZCBOR_MGMT_H__ */
