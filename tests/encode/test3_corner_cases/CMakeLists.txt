@@ -41,6 +41,7 @@ set(py_command
   MapLength
   -e
   ${bit_arg}
+  --short-names
   )
 
 execute_process(
