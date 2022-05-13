@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stddef.h>
-
+#include <string.h>
 
 /** Convenience type that allows pointing to strings directly inside the payload
  *  without the need to copy out.
@@ -19,6 +19,18 @@ struct zcbor_string {
 	size_t len;
 };
 
+/** Init a zcbor string from a null terminated string */
+#define ZCBOR_STRING_FROM_NTS(nts) \
+	(struct zcbor_string)      \
+	{                          \
+		.value = (nts), .len = strlen(nts) \
+	}
+
+#define ZCBOR_BINARY_ARRAY(b) \
+	(struct zcbor_string)      \
+	{                          \
+		.value = (b), .len = sizeof(b) \
+	}
 
 /** Type representing a string fragment.
  *
@@ -73,7 +85,6 @@ do { \
 #ifndef ARRAY_SIZE
 #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
 #endif
-
 
 struct zcbor_state_constant;
 
