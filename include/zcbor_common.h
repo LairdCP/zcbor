@@ -32,6 +32,17 @@ struct zcbor_string {
 		.value = (b), .len = sizeof(b) \
 	}
 
+/* Copy a ZCBOR string into null terminated string */
+#define ZCBOR_MEMCPY_STRING(nts, zs)   \
+	do {                               \
+		size_t nts_maxlen = MIN(sizeof(nts) - 1, zs.len); \
+		memcpy(nts, zs.value, nts_maxlen); \
+		nts[nts_maxlen] = 0;               \
+	} while (0)
+
+#define ZCBOR_MEMCPY_BINARY_ARRAY(ba, zb) \
+	memcpy(ba, zb.value, MIN(sizeof(ba), zb.len))
+
 /** Type representing a string fragment.
  *
  * Don't modify any member variables, or subsequent calls may fail.
