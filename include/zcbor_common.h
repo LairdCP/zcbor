@@ -32,6 +32,12 @@ struct zcbor_string {
 		.value = (b), .len = sizeof(b) \
 	}
 
+#define ZCBOR_BINARY_ARRAY_PTR(b, b_size) \
+	(struct zcbor_string)      \
+	{                          \
+		.value = (b), .len = b_size \
+	}
+
 /* Copy a ZCBOR string into null terminated string */
 #define ZCBOR_MEMCPY_STRING(nts, zs)   \
 	do {                               \
