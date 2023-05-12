@@ -9,7 +9,8 @@ config ZCBOR
 
 config ZCBOR_MGMT
 	bool "Include decoders for MCUMGR Management"
-
+	depends on HEAP_MEM_POOL_SIZE > MCUMGR_BUF_SIZE
+	
 if ZCBOR_MGMT
 
 module=ZCBOR_MGMT

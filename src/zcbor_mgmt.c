@@ -53,29 +53,41 @@ int zcbor_mgmt_decode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func decoder, void *res
 
 int zcbor_mgmt_encode(struct mgmt_ctxt *ctxt, zcbor_mgmt_func encoder, void *input)
 {
-	uint8_t buf[CONFIG_MCUMGR_BUF_SIZE];
+	uint8_t *buf = NULL;
 	size_t encode_len = 0;
 	uint_fast8_t encode_err;
 	struct cbor_encoder_writer *w = ctxt->encoder.writer;
 	int write_status;
+	int status = MGMT_ERR_EOK;
 
-	encode_err = encoder(buf, sizeof(buf), input, &encode_len);
-
-	if (encode_err) {
-		LOG_ERR("Unable to encode response %s", zcbor_get_error_string(encode_err));
-		return MGMT_ERR_ENCODE;
-	} else {
-		LOG_DBG("Encode length %u", encode_len);
-		LOG_HEXDUMP_DBG(buf, encode_len, "cbor out");
+	buf = k_calloc(1, CONFIG_MCUMGR_BUF_SIZE);
+	if (buf == NULL) {
+		return MGMT_ERR_ENOMEM;
 	}
 
-	write_status = w->write(w, buf, encode_len);
-	if (write_status != 0) {
-		LOG_ERR("Unable to write response %d", write_status);
-		return MGMT_ERR_WRITE;
-	}
+	do {
+		encode_err = encoder(buf, CONFIG_MCUMGR_BUF_SIZE, input, &encode_len);
+		if (encode_err) {
+			LOG_ERR("Unable to encode response %s", zcbor_get_error_string(encode_err));
+			status = MGMT_ERR_ENCODE;
+			break;
+		} else {
+			LOG_DBG("Encode length %u", encode_len);
+			LOG_HEXDUMP_DBG(buf, encode_len, "cbor out");
+		}
 
-	return MGMT_ERR_EOK;
+		write_status = w->write(w, buf, encode_len);
+		if (write_status != 0) {
+			LOG_ERR("Unable to write response %d", write_status);
+			status = MGMT_ERR_WRITE;
+			break;
+		}
+
+	} while (0);
+
+	k_free(buf);
+
+	return status;
 }
 
 int zcbor_mgmt_decode_err(struct mgmt_ctxt *ctxt)
